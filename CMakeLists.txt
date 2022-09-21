@@ -25,7 +25,7 @@ find_path(SWRESAMPLE_INCLUDE_DIR libswresample/swresample.h)
 find_library(SWRESAMPLE_LIBRARY swresample)
 find_path(SWSCALE_INCLUDE_DIR libswscale/swscale.h)
 find_library(SWSCALE_LIBRARY swscale)
-find_path(ZLIB_INCLUDE_DIR zlibe.h)
+find_path(ZLIB_INCLUDE_DIR zlib.h)
 find_library(ZLIB_LIBRARY z)
 
 set(PROJECT_SOURCES
