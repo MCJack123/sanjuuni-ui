@@ -13,6 +13,20 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+find_package(OpenSSL REQUIRED)
+find_package(Poco CONFIG REQUIRED COMPONENTS Net NetSSL Util Foundation)
+find_path(AVCODEC_INCLUDE_DIR libavcodec/avcodec.h)
+find_library(AVCODEC_LIBRARY avcodec)
+find_path(AVFORMAT_INCLUDE_DIR libavformat/avformat.h)
+find_library(AVFORMAT_LIBRARY avformat)
+find_path(AVUTIL_INCLUDE_DIR libavutil/avutil.h)
+find_library(AVUTIL_LIBRARY avutil)
+find_path(SWRESAMPLE_INCLUDE_DIR libswresample/swresample.h)
+find_library(SWRESAMPLE_LIBRARY swresample)
+find_path(SWSCALE_INCLUDE_DIR libswscale/swscale.h)
+find_library(SWSCALE_LIBRARY swscale)
+find_path(ZLIB_INCLUDE_DIR zlibe.h)
+find_library(ZLIB_LIBRARY z)
 
 set(PROJECT_SOURCES
         main.cpp
@@ -49,7 +63,14 @@ endif()
 add_compile_definitions(main=sanjuuni_main)
 add_compile_definitions(STATUS_FUNCTION=ui_update_status)
 
-target_link_libraries(sanjuuni-ui PRIVATE Qt${QT_VERSION_MAJOR}::Widgets avcodec avformat avutil swscale swresample PocoFoundation PocoUtil PocoNet PocoNetSSL PocoCrypto z)
+target_include_directories(sanjuuni-ui PRIVATE ${AVCODEC_INCLUDE_DIR} ${AVFORMAT_INCLUDE_DIR} ${AVUTIL_INCLUDE_DIR} ${SWRESAMPLE_INCLUDE_DIR} ${SWSCALE_INCLUDE_DIR})
+target_include_directories(sanjuuni-ui PRIVATE ${ZLIB_INCLUDE_DIR})
+
+target_link_libraries(sanjuuni-ui PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(sanjuuni-ui PRIVATE OpenSSL::SSL OpenSSL::Crypto)
+target_link_libraries(sanjuuni-ui PRIVATE Poco::Net Poco::NetSSL Poco::Util)
+target_link_libraries(sanjuuni-ui PRIVATE ${AVCODEC_LIBRARY} ${AVFORMAT_LIBRARY} ${AVUTIL_LIBRARY} ${SWRESAMPLE_LIBRARY} ${SWSCALE_LIBRARY})
+target_link_libraries(sanjuuni-ui PRIVATE ${ZLIB_LIBRARY})
 
 set_target_properties(sanjuuni-ui PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com

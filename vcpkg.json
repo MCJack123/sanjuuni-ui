@@ -1,0 +1,73 @@
+{
+    "name": "sanjuuni-ui",
+    "version-string": "1.0",
+    "description": "Converts images and videos into a format that can be displayed in ComputerCraft. (Qt GUI)",
+    "dependencies": [
+        "openssl",
+        {
+            "name": "poco",
+            "default-features": true,
+            "features": ["netssl"]
+        },
+        {
+            "name": "ffmpeg",
+            "default-features": false,
+            "features": [
+                "avcodec",
+                "avdevice",
+                "avfilter",
+                "avformat",
+                "avresample",
+                "bzip2",
+                "lzma",
+                "mp3lame",
+                "openjpeg",
+                "opus",
+                "snappy",
+                "soxr",
+                "speex",
+                "swresample",
+                "swscale",
+                "theora",
+                "vorbis",
+                "vpx",
+                "webp",
+                "zlib"
+            ]
+        },
+        {
+            "name": "ffmpeg",
+            "default-features": false,
+            "features": [
+                "modplug"
+            ],
+            "platform": "!uwp"
+        },
+        {
+            "name": "ffmpeg",
+            "default-features": false,
+            "features": [
+                "openh264"
+            ],
+            "platform": "!uwp"
+        },
+        {
+            "name": "ffmpeg",
+            "default-features": false,
+            "features": [
+                "dav1d"
+            ],
+            "platform": "!(uwp | arm | x86 | osx)"
+        },
+        {
+            "name": "ffmpeg",
+            "default-features": false,
+            "features": [
+                "nvcodec"
+            ],
+            "platform": "(windows | linux) & !uwp & !arm"
+        }
+    ],
+    "default-features": [],
+    "features": {}
+}
