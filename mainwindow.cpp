@@ -105,12 +105,14 @@ MainWindow::~MainWindow() {
 void MainWindow::regeneratePreview_thread() {
     while (runningRegen) {
         if (!shouldRegen) {
+            QMetaObject::invokeMethod(this, "showLoadingPreview", Qt::AutoConnection, Q_ARG(bool, false));
             std::unique_lock<std::mutex> lock(regenThreadLock);
             regenThreadNotify.wait(lock);
         }
         if (!runningRegen) break;
         shouldRegen = false;
         if (inputPath.isEmpty()) continue;
+        QMetaObject::invokeMethod(this, "showLoadingPreview", Qt::AutoConnection, Q_ARG(bool, true));
         QImage image = this->originalImage.toImage();
         Mat input(image.width(), image.height());
         for (int y = 0; y < image.height(); y++) {
@@ -123,8 +125,8 @@ void MainWindow::regeneratePreview_thread() {
         switch (ui->quality->value()) {
             case 0: palette = defaultPalette; break;
             case 1: palette = reducePalette_medianCut(input, 16); break;
-            case 2: palette = reducePalette_octree(input, 16); break;
-            case 3: palette = reducePalette_kMeans(input, 16); break;
+            case 3: palette = reducePalette_octree(input, 16); break;
+            case 2: palette = reducePalette_kMeans(input, 16); break;
         }
         Mat reduced;
         if (ui->dither->isChecked()) reduced = ditherImage(input, palette);
@@ -188,6 +190,11 @@ void MainWindow::processComplete(int retval, std::exception *e) {
     }
     ui->progressGroup->hide();
     ui->startButton->setText("Start");
+}
+
+void MainWindow::showLoadingPreview(bool show) {
+    if (show) ui->loadingPreview->show();
+    else ui->loadingPreview->hide();
 }
 
 void MainWindow::on_openInputButton_clicked() {
@@ -333,8 +340,8 @@ void MainWindow::on_startButton_clicked() {
     }
     switch (ui->quality->value()) {
         case 0: arguments.push_back("--default-palette"); break;
-        case 2: arguments.push_back("--octree"); break;
-        case 3: arguments.push_back("--kmeans"); break;
+        case 3: arguments.push_back("--octree"); break;
+        case 2: arguments.push_back("--kmeans"); break;
     }
     ui->progressBar->setValue(0);
     ui->frameNumber->setText("0");
