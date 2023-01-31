@@ -21,7 +21,7 @@ public:
 private slots:
     void setPreviewPixmap();
     void updateStatus(int nframe, int totalFrames, long elapsed, long remaining, int fps);
-    void processComplete(int retval);
+    void processComplete(int retval, std::exception *e);
     void on_openInputButton_clicked();
     void on_scriptType_currentIndexChanged(int index);
     void on_browseButton_clicked();

@@ -173,14 +173,17 @@ void MainWindow::updateStatus(int nframe, int totalFrames, long elapsed, long re
     if (totalFrames > 0) ui->progressBar->setValue((float)nframe / (float)totalFrames * 100);
 }
 
-void MainWindow::processComplete(int retval) {
+void MainWindow::processComplete(int retval, std::exception *e) {
     if (processThread == NULL) return;
     if (processThread->joinable()) processThread->join();
     delete processThread;
     processThread = NULL;
     if (!externalStop) {
         QApplication::beep();
-        if (retval) QMessageBox::critical(this, "Conversion failed", tr("The file failed to convert with error code ") + QString::number(retval) + ". Check the console for more information.");
+        if (e != NULL) {
+            QMessageBox::critical(this, "Conversion failed", tr("The file failed to convert with an exception: ") + QString(e->what()) + ". Check the console for more information.");
+            delete e;
+        } else if (retval) QMessageBox::critical(this, "Conversion failed", tr("The file failed to convert with error code ") + QString::number(retval) + ". Check the console for more information.");
         else QMessageBox::information(this, "Conversion complete", "The file has successfully been converted.");
     }
     ui->progressGroup->hide();
@@ -342,8 +345,12 @@ void MainWindow::on_startButton_clicked() {
     processThread = new std::thread([this, arguments]() {
         const char ** argv = new const char*[arguments.size()];
         for (int i = 0; i < arguments.size(); i++) argv[i] = arguments[i].c_str();
-        int retval = sanjuuni_main(arguments.size(), argv);
-        QMetaObject::invokeMethod(this, "processComplete", Qt::AutoConnection, Q_ARG(int, retval));
+        try {
+            int retval = sanjuuni_main(arguments.size(), argv);
+            QMetaObject::invokeMethod(this, "processComplete", Qt::AutoConnection, Q_ARG(int, retval), Q_ARG(std::exception*, NULL));
+        } catch (std::exception &e) {
+            QMetaObject::invokeMethod(this, "processComplete", Qt::AutoConnection, Q_ARG(int, 0), Q_ARG(std::exception*, new std::exception(e)));
+        }
     });
     ui->startButton->setText("Stop");
     ui->progressGroup->show();
