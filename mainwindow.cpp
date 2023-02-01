@@ -36,6 +36,7 @@ enum class OutputTypeUI {
 static const char * typeExtensions[] = {
     "Lua file (*.lua)",
     "Blit image file (*.bimg)",
+    "NFP/paintutils image file (*.nfp)",
     "Raw mode frame (*.ccraw)",
     "32vid video (*.32v)"
 };
@@ -43,6 +44,7 @@ static const char * typeExtensions[] = {
 static std::string typeArgs[] = {
     "--lua",
     "--blit-image",
+    "--nfp",
     "--raw",
     "--32vid",
     "--http",
