@@ -27,9 +27,16 @@ private slots:
     void on_scriptType_currentIndexChanged(int index);
     void on_browseButton_clicked();
     void on_startButton_clicked();
-    void on_dither_stateChanged(int arg1);
+    void on_lab_stateChanged(int arg1);
     void on_quality_sliderReleased();
+    void on_dither_sliderReleased();
     void on_outputPath_textChanged(const QString &arg1);
+
+protected:
+    void dragEnterEvent(QDragEnterEvent *event);
+    void dragMoveEvent(QDragMoveEvent *event);
+    void dragLeaveEvent(QDragLeaveEvent *event);
+    void dropEvent(QDropEvent *event);
 
 private:
     Ui::MainWindow* ui;
@@ -43,5 +50,6 @@ private:
     std::condition_variable regenThreadNotify;
     void regeneratePreview_thread();
     void regeneratePreview();
+    void openInput();
 };
 #endif // MAINWINDOW_H

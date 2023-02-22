@@ -7,6 +7,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QPainter>
+#include <QMimeData>
 
 extern "C" {
 #include <libavcodec/avcodec.h>
@@ -91,6 +92,7 @@ void STATUS_FUNCTION(int nframe, int totalFrames, std::chrono::milliseconds elap
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWindow), regenThread(std::bind(&MainWindow::regeneratePreview_thread, this)) {
     ui->setupUi(this);
     ui->progressGroup->hide();
+    setAcceptDrops(true);
 }
 
 MainWindow::~MainWindow() {
@@ -118,9 +120,10 @@ void MainWindow::regeneratePreview_thread() {
         for (int y = 0; y < image.height(); y++) {
             for (int x = 0; x < image.width(); x++) {
                 QRgb rgb = image.pixel(x, y);
-                input[y][x] = {qRed(rgb), qGreen(rgb), qBlue(rgb)};
+                input[y][x] = {(uchar)qRed(rgb), (uchar)qGreen(rgb), (uchar)qBlue(rgb)};
             }
         }
+        if (ui->lab->isChecked() && ui->quality->value()) input = makeLabImage(input);
         std::vector<Vec3b> palette;
         switch (ui->quality->value()) {
             case 0: palette = defaultPalette; break;
@@ -129,12 +132,16 @@ void MainWindow::regeneratePreview_thread() {
             case 2: palette = reducePalette_kMeans(input, 16); break;
         }
         Mat reduced;
-        if (ui->dither->isChecked()) reduced = ditherImage(input, palette);
-        else reduced = thresholdImage(input, palette);
+        switch (ui->dither->value()) {
+            case 0: reduced = thresholdImage(input, palette); break;
+            case 1: reduced = ditherImage_ordered(input, palette); break;
+            case 2: reduced = ditherImage(input, palette); break;
+        }
         Mat1b palimg = rgbToPaletteImage(reduced, palette);
         uchar * chars = NULL, * cols = NULL;
         makeCCImage(palimg, palette, &chars, &cols);
         int width = palimg.width / 2, height = palimg.height / 3;
+        if (ui->lab->isChecked() && ui->quality->value()) palette = convertLabPalette(palette);
         QPixmap res(width * 6, height * 9);
         QPainter painter(&res);
         for (int y = 0; y < height; y++) {
@@ -199,6 +206,9 @@ void MainWindow::showLoadingPreview(bool show) {
 
 void MainWindow::on_openInputButton_clicked() {
     inputPath = QFileDialog::getOpenFileName(this, tr("Select Input File"), "", tr("Images (*.png *.jpg *.jpeg *.gif *.bmp *.webp *.heic);;Videos (*.mp4 *.m4v *.mov *.avi *.webm *.mkv *.flv);;All files (*)"));
+}
+
+void MainWindow::openInput() {
     if (!inputPath.isEmpty()) {
         AVFormatContext * format_ctx = NULL;
         AVCodecContext * video_codec_ctx = NULL;
@@ -324,11 +334,15 @@ void MainWindow::on_startButton_clicked() {
         arguments.push_back(typeArgs[ui->scriptType->currentIndex()]);
         arguments.push_back(ui->outputPath->text().toStdString());
     }
-    if (!ui->dither->isChecked()) arguments.push_back("--threshold");
+    switch (ui->dither->value()) {
+        case 0: arguments.push_back("--threshold"); break;
+        case 1: arguments.push_back("--ordered"); break;
+    }
     if (ui->compress->isChecked()) {
         arguments.push_back("--compression");
         arguments.push_back("custom");
     }
+    if (ui->lab->isChecked()) arguments.push_back("--lab-color");
     if (ui->dfpwm->isChecked()) arguments.push_back("--dfpwm");
     if (ui->width->value() > 0) {
         arguments.push_back("--width");
@@ -363,15 +377,40 @@ void MainWindow::on_startButton_clicked() {
     ui->progressGroup->show();
 }
 
-void MainWindow::on_dither_stateChanged(int arg1) {
+void MainWindow::on_lab_stateChanged(int arg1) {
     regeneratePreview();
 }
 
 void MainWindow::on_quality_sliderReleased() {
     regeneratePreview();
+    ui->lab->setEnabled(ui->quality->value());
+}
+
+void MainWindow::on_dither_sliderReleased() {
+    regeneratePreview();
 }
 
 void MainWindow::on_outputPath_textChanged(const QString &arg1) {
     ui->startButton->setEnabled(!inputPath.isEmpty() && (!ui->outputPath->text().isEmpty() || ui->scriptType->currentIndex() == (int)OutputTypeUI::HTTP || ui->scriptType->currentIndex() == (int)OutputTypeUI::WSServer));
+}
+
+void MainWindow::dragEnterEvent(QDragEnterEvent *event) {
+    event->acceptProposedAction();
+}
+
+void MainWindow::dragMoveEvent(QDragMoveEvent *event) {
+    event->acceptProposedAction();
+}
+
+void MainWindow::dragLeaveEvent(QDragLeaveEvent *event) {
+    event->accept();
+}
+
+void MainWindow::dropEvent(QDropEvent *event) {
+    const QMimeData * mimeData = event->mimeData();
+    if (mimeData->hasUrls()) {
+        inputPath = mimeData->urls().at(0).toLocalFile();
+        openInput();
+    }
 }
 
