@@ -280,7 +280,7 @@
         <item>
          <widget class="QLabel" name="label_16">
           <property name="toolTip">
-           <string>Whether to dither the image. Dithering creates smoother transitions between colors, at the cost of speed and possible compression.</string>
+           <string/>
           </property>
           <property name="text">
            <string>Dithering:</string>
@@ -309,6 +309,9 @@
             <width>75</width>
             <height>16777215</height>
            </size>
+          </property>
+          <property name="toolTip">
+           <string>Whether to dither the image. Dithering creates smoother transitions between colors, at the cost of speed and possible compression.</string>
           </property>
           <property name="maximum">
            <number>2</number>
@@ -703,7 +706,7 @@
      <x>0</x>
      <y>0</y>
      <width>820</width>
-     <height>21</height>
+     <height>23</height>
     </rect>
    </property>
   </widget>

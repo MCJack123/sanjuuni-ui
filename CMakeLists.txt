@@ -14,6 +14,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 find_package(OpenSSL REQUIRED)
+find_package(OpenCL)
 find_package(Poco CONFIG REQUIRED COMPONENTS Net NetSSL Util Foundation)
 find_path(AVCODEC_INCLUDE_DIR libavcodec/avcodec.h)
 find_library(AVCODEC_LIBRARY avcodec)
@@ -36,7 +37,7 @@ set(PROJECT_SOURCES
         mainwindow.h
         mainwindow.ui
         resizelabel.h resizelabel.cpp
-        sanjuuni/src/cc-pixel.cpp sanjuuni/src/generator.cpp sanjuuni/src/octree.cpp sanjuuni/src/quantize.cpp sanjuuni/src/sanjuuni.hpp sanjuuni/src/sanjuuni.cpp
+        sanjuuni/src/cc-pixel.cpp sanjuuni/src/cc-pixel-cl.cpp sanjuuni/src/generator.cpp sanjuuni/src/octree.cpp sanjuuni/src/quantize.cpp sanjuuni/src/sanjuuni.hpp sanjuuni/src/sanjuuni.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -64,18 +65,28 @@ endif()
 
 add_compile_definitions(main=sanjuuni_main)
 add_compile_definitions(STATUS_FUNCTION=ui_update_status)
+if(OpenCL_FOUND)
+    add_compile_definitions(HAS_OPENCL=1)
+endif()
 
 target_include_directories(sanjuuni-ui PRIVATE ${AVCODEC_INCLUDE_DIR} ${AVDEVICE_INCLUDE_DIR} ${AVFORMAT_INCLUDE_DIR} ${AVUTIL_INCLUDE_DIR} ${SWRESAMPLE_INCLUDE_DIR} ${SWSCALE_INCLUDE_DIR})
 target_include_directories(sanjuuni-ui PRIVATE ${ZLIB_INCLUDE_DIR})
 
 target_link_libraries(sanjuuni-ui PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 target_link_libraries(sanjuuni-ui PRIVATE OpenSSL::SSL OpenSSL::Crypto)
+target_link_libraries(sanjuuni-ui PRIVATE OpenCL::OpenCL)
 target_link_libraries(sanjuuni-ui PRIVATE Poco::Net Poco::NetSSL Poco::Util)
 target_link_libraries(sanjuuni-ui PRIVATE ${AVCODEC_LIBRARY} ${AVDEVICE_LIBRARY} ${AVFORMAT_LIBRARY} ${AVUTIL_LIBRARY} ${SWRESAMPLE_LIBRARY} ${SWSCALE_LIBRARY})
 target_link_libraries(sanjuuni-ui PRIVATE ${ZLIB_LIBRARY})
 
+add_custom_command(
+    OUTPUT ${PROJECT_SOURCE_DIR}/sanjuuni/src/cc-pixel-cl.cpp
+    DEPENDS ${PROJECT_SOURCE_DIR}/sanjuuni/src/cc-pixel.cpp
+    COMMAND sh ARGS ${PROJECT_SOURCE_DIR}/makecl.sh ${PROJECT_SOURCE_DIR}/sanjuuni/src/cc-pixel.cpp ${PROJECT_SOURCE_DIR}/sanjuuni/src/cc-pixel-cl.cpp
+)
+
 set_target_properties(sanjuuni-ui PROPERTIES
-    MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
+    MACOSX_BUNDLE_GUI_IDENTIFIER cc.craftos-pc.sanjuuni
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
     MACOSX_BUNDLE TRUE
