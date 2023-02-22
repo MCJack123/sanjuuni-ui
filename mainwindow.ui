@@ -426,6 +426,11 @@
           </item>
           <item>
            <property name="text">
+            <string>NFP/paintutils image</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
             <string>Raw video</string>
            </property>
           </item>
@@ -698,7 +703,7 @@
      <x>0</x>
      <y>0</y>
      <width>820</width>
-     <height>23</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>
