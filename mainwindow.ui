@@ -54,30 +54,6 @@
     <item row="0" column="0" colspan="4">
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
-       <layout class="QVBoxLayout" name="verticalLayout">
-        <item>
-         <widget class="QCheckBox" name="lab">
-          <property name="toolTip">
-           <string>Whether to use the CIELab color space when converting, which uses colors more evenly spaced out to the human eye. Improves color variety at the cost of some speed.</string>
-          </property>
-          <property name="text">
-           <string>Use Lab color space</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="advancedButton">
-          <property name="text">
-           <string>Advanced...</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
          <widget class="QPushButton" name="openInputButton">
@@ -357,6 +333,30 @@
            </widget>
           </item>
          </layout>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <widget class="QCheckBox" name="lab">
+          <property name="toolTip">
+           <string>Whether to use the CIELab color space when converting, which uses colors more evenly spaced out to the human eye. Improves color variety at the cost of some speed.</string>
+          </property>
+          <property name="text">
+           <string>Use Lab color space</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="advancedButton">
+          <property name="text">
+           <string>Advanced...</string>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>
