@@ -81,11 +81,18 @@ target_link_libraries(sanjuuni-ui PRIVATE Poco::Net Poco::NetSSL Poco::Util)
 target_link_libraries(sanjuuni-ui PRIVATE ${AVCODEC_LIBRARY} ${AVDEVICE_LIBRARY} ${AVFORMAT_LIBRARY} ${AVUTIL_LIBRARY} ${SWRESAMPLE_LIBRARY} ${SWSCALE_LIBRARY})
 target_link_libraries(sanjuuni-ui PRIVATE ${ZLIB_LIBRARY})
 
+if(WIN32)
+    string(REGEX MATCH "^[A-Z]+" DRIVE_LETTER ${PROJECT_SOURCE_DIR})
+    string(TOLOWER ${DRIVE_LETTER} DRIVE_LETTER_LOWER)
+    string(REGEX REPLACE "^([A-Z]+):" "/mnt/${DRIVE_LETTER_LOWER}" BASH_SOURCE_DIR ${PROJECT_SOURCE_DIR})
+else()
+    set(BASH_SOURCE_DIR ${PROJECT_SOURCE_DIR})
+endif()
+
 add_custom_command(
     OUTPUT ${PROJECT_SOURCE_DIR}/sanjuuni/src/cc-pixel-cl.cpp
     DEPENDS ${PROJECT_SOURCE_DIR}/sanjuuni/src/cc-pixel.cpp
-    COMMAND sh ARGS ${PROJECT_SOURCE_DIR}/makecl.sh ${PROJECT_SOURCE_DIR}/sanjuuni/src/cc-pixel.cpp ${PROJECT_SOURCE_DIR}/sanjuuni/src/cc-pixel-cl.cpp
-)
+    COMMAND bash ARGS ${BASH_SOURCE_DIR}/makecl.sh ${BASH_SOURCE_DIR}/sanjuuni/src/cc-pixel.cpp ${BASH_SOURCE_DIR}/sanjuuni/src/cc-pixel-cl.cpp)
 
 set_target_properties(sanjuuni-ui PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER cc.craftos-pc.sanjuuni

@@ -181,10 +181,22 @@ void MainWindow::regeneratePreview() {
 
 void MainWindow::updateStatus(int nframe, int totalFrames, long elapsed, long remaining, int fps) {
     ui->frameNumber->setText(QString::number(nframe));
-    ui->totalFrames->setText(QString::number(totalFrames));
-    ui->timeRemaining->setText(QString::fromStdString(makeDurationString(std::chrono::milliseconds(remaining))));
     ui->fps->setText(QString::number(fps));
-    if (totalFrames > 0) ui->progressBar->setValue((float)nframe / (float)totalFrames * 100);
+    if (totalFrames > 0) {
+        ui->totalFrames->setText(QString::number(totalFrames));
+        if (nframe == totalFrames) {
+            ui->timeRemaining->setText("Streaming...");
+            ui->progressBar->setMaximum(0);
+        } else {
+            ui->timeRemaining->setText(QString::fromStdString(makeDurationString(std::chrono::milliseconds(remaining))));
+            ui->progressBar->setValue(nframe);
+            ui->progressBar->setMaximum(totalFrames);
+        }
+    } else {
+        ui->totalFrames->setText("?");
+        ui->timeRemaining->setText("unknown");
+        ui->progressBar->setMaximum(0);
+    }
 }
 
 void MainWindow::processComplete(int retval, std::exception *e) {
