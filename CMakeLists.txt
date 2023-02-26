@@ -37,6 +37,8 @@ set(PROJECT_SOURCES
         mainwindow.h
         mainwindow.ui
         resizelabel.h resizelabel.cpp
+        advanceddialog.h advanceddialog.cpp advanceddialog.ui
+        resource.qrc
         sanjuuni/src/cc-pixel.cpp sanjuuni/src/cc-pixel-cl.cpp sanjuuni/src/generator.cpp sanjuuni/src/octree.cpp sanjuuni/src/quantize.cpp sanjuuni/src/sanjuuni.hpp sanjuuni/src/sanjuuni.cpp
 )
 

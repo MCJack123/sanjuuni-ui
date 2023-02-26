@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "advanceddialog.h"
 #include "sanjuuni/src/sanjuuni.hpp"
 
 #include <chrono>
@@ -210,6 +211,7 @@ void MainWindow::showLoadingPreview(bool show) {
 
 void MainWindow::on_openInputButton_clicked() {
     inputPath = QFileDialog::getOpenFileName(this, tr("Select Input File"), "", tr("Images (*.png *.jpg *.jpeg *.gif *.bmp *.webp *.heic);;Videos (*.mp4 *.m4v *.mov *.avi *.webm *.mkv *.flv);;All files (*)"));
+    openInput();
 }
 
 void MainWindow::openInput() {
@@ -299,13 +301,16 @@ void MainWindow::openInput() {
     ui->startButton->setEnabled(!inputPath.isEmpty() && (!ui->outputPath->text().isEmpty() || ui->scriptType->currentIndex() == (int)OutputTypeUI::HTTP || ui->scriptType->currentIndex() == (int)OutputTypeUI::WSServer));
 }
 
+void MainWindow::on_advancedButton_clicked() {
+    AdvancedDialog dialog(advanced, this);
+    dialog.exec();
+}
+
 void MainWindow::on_scriptType_currentIndexChanged(int index) {
     OutputTypeUI tt = (OutputTypeUI)index;
     ui->browseButton->setEnabled(tt == OutputTypeUI::Lua || tt == OutputTypeUI::BIMG || tt == OutputTypeUI::Raw || tt == OutputTypeUI::Vid32);
     ui->port->setEnabled(tt == OutputTypeUI::HTTP || tt == OutputTypeUI::WSServer);
     ui->outputPath->setEnabled(tt != OutputTypeUI::HTTP && tt != OutputTypeUI::WSServer);
-    ui->compress->setEnabled(tt == OutputTypeUI::Vid32);
-    ui->dfpwm->setEnabled(tt == OutputTypeUI::Vid32);
     ui->startButton->setEnabled(!inputPath.isEmpty() && (!ui->outputPath->text().isEmpty() || ui->scriptType->currentIndex() == (int)OutputTypeUI::HTTP || ui->scriptType->currentIndex() == (int)OutputTypeUI::WSServer));
 }
 
@@ -342,12 +347,20 @@ void MainWindow::on_startButton_clicked() {
         case 0: arguments.push_back("--threshold"); break;
         case 1: arguments.push_back("--ordered"); break;
     }
-    if (ui->compress->isChecked()) {
+    if (advanced.compress) {
         arguments.push_back("--compression");
-        arguments.push_back("custom");
+        if (advanced.compressDeflate) arguments.push_back("deflate");
+        else arguments.push_back("custom");
     }
     if (ui->lab->isChecked()) arguments.push_back("--lab-color");
-    if (ui->dfpwm->isChecked()) arguments.push_back("--dfpwm");
+    if (advanced.compressDFPWM) arguments.push_back("--dfpwm");
+    if (advanced.binary) arguments.push_back("--binary");
+    if (advanced.disableOpenCL) arguments.push_back("--disable-opencl");
+    if (advanced.streamed) arguments.push_back("--streamed");
+    if (!advanced.subtitle.isEmpty()) {
+        arguments.push_back("--subtitle");
+        arguments.push_back(advanced.subtitle.toStdString());
+    }
     if (ui->width->value() > 0) {
         arguments.push_back("--width");
         arguments.push_back(std::to_string(ui->width->value()));

@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>sanjuuni</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="resource.qrc">
+    <normaloff>:/icon.png</normaloff>:/icon.png</iconset>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout" columnstretch="0,1,0,0,0">
     <item row="4" column="3">
@@ -65,28 +69,9 @@
          </widget>
         </item>
         <item>
-         <widget class="QCheckBox" name="compress">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="toolTip">
-           <string>Whether to compress 32vid video files.</string>
-          </property>
+         <widget class="QPushButton" name="advancedButton">
           <property name="text">
-           <string>Compress 32vid</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="dfpwm">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="toolTip">
-           <string>Whether to compress audio output in DFPWM format.</string>
-          </property>
-          <property name="text">
-           <string>Use DFPWM audio</string>
+           <string>Advanced...</string>
           </property>
          </widget>
         </item>
@@ -719,6 +704,8 @@
    <header>resizelabel.h</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="resource.qrc"/>
+ </resources>
  <connections/>
 </ui>

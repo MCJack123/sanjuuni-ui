@@ -5,6 +5,7 @@
 #include <thread>
 #include <mutex>
 #include <condition_variable>
+#include "advanceddialog.h"
 
 namespace Ui {
     class MainWindow;
@@ -24,6 +25,7 @@ private slots:
     void processComplete(int retval, std::exception* e);
     void showLoadingPreview(bool show);
     void on_openInputButton_clicked();
+    void on_advancedButton_clicked();
     void on_scriptType_currentIndexChanged(int index);
     void on_browseButton_clicked();
     void on_startButton_clicked();
@@ -48,6 +50,7 @@ private:
     std::thread regenThread;
     std::mutex regenThreadLock;
     std::condition_variable regenThreadNotify;
+    AdvancedDialog::Settings advanced;
     void regeneratePreview_thread();
     void regeneratePreview();
     void openInput();
