@@ -16,6 +16,9 @@ AdvancedDialog::AdvancedDialog(Settings& settings, QWidget *parent) :
     ui->subtitle->setText(settings.subtitle);
     ui->deflate->setEnabled(settings.compress);
     ui->dfpwm->setEnabled(settings.compress);
+    ui->monitorWidth->setValue(settings.monitorWidth);
+    ui->monitorHeight->setValue(settings.monitorHeight);
+    ui->monitorScale->setValue(settings.monitorScale);
 }
 
 AdvancedDialog::~AdvancedDialog() {
@@ -59,4 +62,16 @@ void AdvancedDialog::on_buttonBox_accepted() {
 
 void AdvancedDialog::on_buttonBox_rejected() {
     close();
+}
+
+void AdvancedDialog::on_monitorWidth_valueChanged(int arg1) {
+    settings.monitorWidth = arg1;
+}
+
+void AdvancedDialog::on_monitorHeight_valueChanged(int arg1) {
+    settings.monitorHeight = arg1;
+}
+
+void AdvancedDialog::on_monitorScale_valueChanged(double arg1) {
+    settings.monitorScale = arg1;
 }

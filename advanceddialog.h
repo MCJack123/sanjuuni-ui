@@ -19,6 +19,9 @@ public:
         bool streamed = false;
         bool disableOpenCL = false;
         QString subtitle = "";
+        int monitorWidth = 8;
+        int monitorHeight = 6;
+        double monitorScale = 0.5;
     };
 
     explicit AdvancedDialog(Settings& settings, QWidget *parent = nullptr);
@@ -34,6 +37,9 @@ protected slots:
     void on_subtitle_textChanged(const QString& str);
     void on_buttonBox_accepted();
     void on_buttonBox_rejected();
+    void on_monitorWidth_valueChanged(int arg1);
+    void on_monitorHeight_valueChanged(int arg1);
+    void on_monitorScale_valueChanged(double arg1);
 
 private:
     Ui::AdvancedDialog *ui;

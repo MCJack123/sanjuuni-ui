@@ -352,6 +352,16 @@
          </widget>
         </item>
         <item>
+         <widget class="QCheckBox" name="multiMonitor">
+          <property name="toolTip">
+           <string>Splits the image into multiple sections to be displayed on a large monitor array.</string>
+          </property>
+          <property name="text">
+           <string>Create multi-monitor image</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QPushButton" name="advancedButton">
           <property name="text">
            <string>Advanced...</string>

@@ -312,6 +312,10 @@ void MainWindow::on_scriptType_currentIndexChanged(int index) {
     ui->port->setEnabled(tt == OutputTypeUI::HTTP || tt == OutputTypeUI::WSServer);
     ui->outputPath->setEnabled(tt != OutputTypeUI::HTTP && tt != OutputTypeUI::WSServer);
     ui->startButton->setEnabled(!inputPath.isEmpty() && (!ui->outputPath->text().isEmpty() || ui->scriptType->currentIndex() == (int)OutputTypeUI::HTTP || ui->scriptType->currentIndex() == (int)OutputTypeUI::WSServer));
+    if (tt != OutputTypeUI::Lua && tt != OutputTypeUI::BIMG) {
+        ui->multiMonitor->setEnabled(false);
+        ui->multiMonitor->setChecked(false);
+    } else ui->multiMonitor->setEnabled(true);
 }
 
 void MainWindow::on_browseButton_clicked() {
@@ -373,6 +377,11 @@ void MainWindow::on_startButton_clicked() {
         case 0: arguments.push_back("--default-palette"); break;
         case 3: arguments.push_back("--octree"); break;
         case 2: arguments.push_back("--kmeans"); break;
+    }
+    if (ui->multiMonitor->isChecked()) {
+        arguments.push_back("--monitor-size");
+        if (advanced.monitorWidth != 8 || advanced.monitorHeight != 6 || advanced.monitorScale != 0.5)
+            arguments.push_back(std::to_string(advanced.monitorWidth) + "x" + std::to_string(advanced.monitorHeight) + "@" + std::to_string(advanced.monitorScale));
     }
     ui->progressBar->setValue(0);
     ui->frameNumber->setText("0");
