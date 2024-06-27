@@ -3,14 +3,14 @@
  <class>AdvancedDialog</class>
  <widget class="QDialog" name="AdvancedDialog">
   <property name="windowModality">
-   <enum>Qt::WindowModal</enum>
+   <enum>Qt::WindowModality::WindowModal</enum>
   </property>
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>350</height>
+    <height>455</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -22,13 +22,13 @@
   <property name="minimumSize">
    <size>
     <width>400</width>
-    <height>350</height>
+    <height>455</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>400</width>
-    <height>350</height>
+    <height>455</height>
    </size>
   </property>
   <property name="sizeIncrement">
@@ -53,11 +53,11 @@
      <x>0</x>
      <y>0</y>
      <width>400</width>
-     <height>350</height>
+     <height>451</height>
     </rect>
    </property>
    <property name="sizePolicy">
-    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
@@ -65,12 +65,18 @@
    <property name="minimumSize">
     <size>
      <width>400</width>
-     <height>350</height>
+     <height>451</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>400</width>
+     <height>16777215</height>
     </size>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
     <property name="sizeConstraint">
-     <enum>QLayout::SetMinimumSize</enum>
+     <enum>QLayout::SizeConstraint::SetMinimumSize</enum>
     </property>
     <property name="leftMargin">
      <number>10</number>
@@ -90,17 +96,14 @@
        <string>**Advanced Options**</string>
       </property>
       <property name="textFormat">
-       <enum>Qt::MarkdownText</enum>
+       <enum>Qt::TextFormat::MarkdownText</enum>
       </property>
      </widget>
     </item>
     <item>
-     <widget class="QCheckBox" name="compress">
-      <property name="toolTip">
-       <string>Compress video data in 32vid files for smaller file sizes at the cost of load time.</string>
-      </property>
+     <widget class="QLabel" name="label_7">
       <property name="text">
-       <string>Compress 32vid video</string>
+       <string>32vid output options:</string>
       </property>
      </widget>
     </item>
@@ -115,7 +118,7 @@
       <item>
        <widget class="QCheckBox" name="dfpwm">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="toolTip">
          <string>Use DFPWM audio compression for smaller audio at the cost of quality.</string>
@@ -129,17 +132,51 @@
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="deflate">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="toolTip">
-         <string>Use deprecated DEFLATE compression instead of the custom 32vid codec.</string>
-        </property>
+       <widget class="QCheckBox" name="separateStreams">
         <property name="text">
-         <string>Use DEFLATE compression (not recommended)</string>
+         <string>Output 32vid files with separate streams (deprecated)</string>
         </property>
        </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="QLabel" name="label_8">
+          <property name="text">
+           <string>Video compression type:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="compressionType">
+          <item>
+           <property name="text">
+            <string extracomment="Determines the best compression type for the requested format.">Auto</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string extracomment="Do not compress the video data.">None</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string extracomment="Use the DEFLATE algorithm on uncompressed data. This is not well supported.">DEFLATE (deprecated)</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string extracomment="Use custom Huffman compression. ANS is preferred in newer files.">Huffman (old)</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string extracomment="Use ANS encoding, which is a faster variant of Huffman.">ANS (faster)</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </item>
@@ -150,6 +187,13 @@
       </property>
       <property name="text">
        <string>Output blit image files in binary mode</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QCheckBox" name="trimBorders">
+      <property name="text">
+       <string>Adjust multi-monitor images to fit under monitor borders</string>
       </property>
      </widget>
     </item>
@@ -284,15 +328,43 @@
         </item>
        </layout>
       </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_9">
+        <property name="text">
+         <string>Force palette:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <item>
+         <widget class="QCheckBox" name="forcePalette">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="paletteEdit">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Edit...</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
      </layout>
     </item>
     <item>
      <spacer name="verticalSpacer">
       <property name="orientation">
-       <enum>Qt::Vertical</enum>
+       <enum>Qt::Orientation::Vertical</enum>
       </property>
       <property name="sizeType">
-       <enum>QSizePolicy::Minimum</enum>
+       <enum>QSizePolicy::Policy::Minimum</enum>
       </property>
       <property name="sizeHint" stdset="0">
        <size>
@@ -305,10 +377,10 @@
     <item>
      <widget class="QDialogButtonBox" name="buttonBox">
       <property name="orientation">
-       <enum>Qt::Horizontal</enum>
+       <enum>Qt::Orientation::Horizontal</enum>
       </property>
       <property name="standardButtons">
-       <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+       <set>QDialogButtonBox::StandardButton::Cancel|QDialogButtonBox::StandardButton::Ok</set>
       </property>
      </widget>
     </item>

@@ -33,6 +33,8 @@ private slots:
     void on_quality_sliderReleased();
     void on_dither_sliderReleased();
     void on_outputPath_textChanged(const QString &arg1);
+    void on_width_valueChanged(int arg1);
+    void on_height_valueChanged(int arg1);
 
 protected:
     void dragEnterEvent(QDragEnterEvent *event);

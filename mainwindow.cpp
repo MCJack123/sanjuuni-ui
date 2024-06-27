@@ -4,6 +4,8 @@
 #include "sanjuuni/src/sanjuuni.hpp"
 
 #include <chrono>
+#include <iomanip>
+#include <sstream>
 
 #include <QFileDialog>
 #include <QMessageBox>
@@ -121,6 +123,13 @@ void MainWindow::regeneratePreview_thread() {
         if (inputPath.isEmpty()) continue;
         QMetaObject::invokeMethod(this, "showLoadingPreview", Qt::AutoConnection, Q_ARG(bool, true));
         QImage image = this->originalImage.toImage();
+        int swidth = ui->width->value();
+        int sheight = ui->height->value();
+        if (swidth != 0 || sheight != 0) {
+            if (swidth == 0) image = image.scaledToHeight(sheight);
+            else if (sheight == 0) image = image.scaledToWidth(swidth);
+            else image = image.scaled(swidth, sheight);
+        }
         Mat input(image.width(), image.height());
         for (int y = 0; y < image.height(); y++) {
             for (int x = 0; x < image.width(); x++) {
@@ -324,7 +333,7 @@ void MainWindow::on_scriptType_currentIndexChanged(int index) {
     ui->port->setEnabled(tt == OutputTypeUI::HTTP || tt == OutputTypeUI::WSServer);
     ui->outputPath->setEnabled(tt != OutputTypeUI::HTTP && tt != OutputTypeUI::WSServer);
     ui->startButton->setEnabled(!inputPath.isEmpty() && (!ui->outputPath->text().isEmpty() || ui->scriptType->currentIndex() == (int)OutputTypeUI::HTTP || ui->scriptType->currentIndex() == (int)OutputTypeUI::WSServer));
-    if (tt != OutputTypeUI::Lua && tt != OutputTypeUI::BIMG) {
+    if (tt != OutputTypeUI::Lua && tt != OutputTypeUI::BIMG && tt != OutputTypeUI::Vid32) {
         ui->multiMonitor->setEnabled(false);
         ui->multiMonitor->setChecked(false);
     } else ui->multiMonitor->setEnabled(true);
@@ -363,14 +372,24 @@ void MainWindow::on_startButton_clicked() {
         case 0: arguments.push_back("--threshold"); break;
         case 1: arguments.push_back("--ordered"); break;
     }
-    if (advanced.compress) {
+    if (tt == OutputTypeUI::Vid32) {
         arguments.push_back("--compression");
-        if (advanced.compressDeflate) arguments.push_back("deflate");
-        else arguments.push_back("custom");
+        switch (advanced.compressionType) {
+            case 0:
+                if (advanced.separateStreams) arguments.push_back("custom");
+                else arguments.push_back("ans");
+                break;
+            case 1: arguments.push_back("--compression"); arguments.push_back("none"); break;
+            case 2: arguments.push_back("--compression"); arguments.push_back("deflate"); break;
+            case 3: arguments.push_back("--compression"); arguments.push_back("custom"); break;
+            case 4: arguments.push_back("--compression"); arguments.push_back("ans"); break;
+        }
     }
     if (ui->lab->isChecked()) arguments.push_back("--lab-color");
     if (advanced.compressDFPWM) arguments.push_back("--dfpwm");
     if (advanced.binary) arguments.push_back("--binary");
+    if (advanced.separateStreams) arguments.push_back("--separate-streams");
+    if (advanced.trimBorders) arguments.push_back("--trim-borders");
     if (advanced.disableOpenCL) arguments.push_back("--disable-opencl");
     if (advanced.streamed) arguments.push_back("--streamed");
     if (!advanced.subtitle.isEmpty()) {
@@ -394,6 +413,15 @@ void MainWindow::on_startButton_clicked() {
         arguments.push_back("--monitor-size");
         if (advanced.monitorWidth != 8 || advanced.monitorHeight != 6 || advanced.monitorScale != 0.5)
             arguments.push_back(std::to_string(advanced.monitorWidth) + "x" + std::to_string(advanced.monitorHeight) + "@" + std::to_string(advanced.monitorScale));
+    }
+    if (advanced.forcePalette) {
+        arguments.push_back("--palette");
+        std::stringstream arg;
+        for (int i = 0; i < 16; i++) {
+            if (i > 0) arg << ",";
+            if (advanced.palette[i] >= 0) arg << std::hex << std::setw(6) << std::setfill('0') << advanced.palette[i];
+        }
+        arguments.push_back(arg.str());
     }
     ui->progressBar->setValue(0);
     ui->frameNumber->setText("0");
@@ -430,6 +458,14 @@ void MainWindow::on_dither_sliderReleased() {
 
 void MainWindow::on_outputPath_textChanged(const QString &arg1) {
     ui->startButton->setEnabled(!inputPath.isEmpty() && (!ui->outputPath->text().isEmpty() || ui->scriptType->currentIndex() == (int)OutputTypeUI::HTTP || ui->scriptType->currentIndex() == (int)OutputTypeUI::WSServer));
+}
+
+void MainWindow::on_width_valueChanged(int arg1) {
+    regeneratePreview();
+}
+
+void MainWindow::on_height_valueChanged(int arg1) {
+    regeneratePreview();
 }
 
 void MainWindow::dragEnterEvent(QDragEnterEvent *event) {
