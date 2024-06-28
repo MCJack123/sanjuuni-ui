@@ -24,7 +24,7 @@ public:
         int monitorWidth = 8;
         int monitorHeight = 6;
         double monitorScale = 0.5;
-        int32_t palette[16] = {-1};
+        int32_t palette[16] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
     };
 
     explicit AdvancedDialog(Settings& settings, QWidget *parent = nullptr);
@@ -45,6 +45,7 @@ protected slots:
     void on_monitorHeight_valueChanged(int arg1);
     void on_monitorScale_valueChanged(double arg1);
     void on_forcePalette_stateChanged(int arg1);
+    void on_paletteEdit_clicked();
 
 private:
     Ui::AdvancedDialog *ui;

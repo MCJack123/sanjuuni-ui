@@ -84,6 +84,7 @@ set(PROJECT_SOURCES
         mainwindow.ui
         resizelabel.h resizelabel.cpp
         advanceddialog.h advanceddialog.cpp advanceddialog.ui
+        palettechooser.h palettechooser.cpp palettechooser.ui
         resource.qrc
         sanjuuni/src/cc-pixel.cpp sanjuuni/src/cc-pixel-cl.cpp sanjuuni/src/generator.cpp sanjuuni/src/octree.cpp sanjuuni/src/quantize.cpp sanjuuni/src/sanjuuni.hpp sanjuuni/src/sanjuuni.cpp
 )
@@ -107,6 +108,7 @@ else()
     else()
         add_executable(sanjuuni-ui
             ${PROJECT_SOURCES}
+            palettechooser.h palettechooser.cpp palettechooser.ui
         )
     endif()
 endif()

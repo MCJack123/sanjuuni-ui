@@ -1,5 +1,6 @@
 #include "advanceddialog.h"
 #include "ui_advanceddialog.h"
+#include "palettechooser.h"
 
 AdvancedDialog::AdvancedDialog(Settings& settings, QWidget *parent) :
     QDialog(parent),
@@ -89,4 +90,9 @@ void AdvancedDialog::on_monitorScale_valueChanged(double arg1) {
 void AdvancedDialog::on_forcePalette_stateChanged(int arg1) {
     settings.forcePalette = arg1 == Qt::Checked;
     ui->paletteEdit->setEnabled(arg1 == Qt::Checked);
+}
+
+void AdvancedDialog::on_paletteEdit_clicked() {
+    PaletteChooser chooser(settings.palette, this);
+    chooser.exec();
 }

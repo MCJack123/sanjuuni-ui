@@ -138,12 +138,35 @@ void MainWindow::regeneratePreview_thread() {
             }
         }
         if (ui->lab->isChecked() && ui->quality->value()) input = makeLabImage(input);
+        uint16_t customPaletteMask = 0, customPaletteCount = 16;
+        Vec3b customPalette[16];
+        for (size_t i = 0; i < 16; i++) {
+            if (advanced.palette[i] >= 0) {
+                long color = advanced.palette[i];
+                customPalette[i] = {color & 0xFF, (color >> 8) & 0xFF, (color >> 16) & 0xFF};
+                customPaletteMask |= 1 << i;
+                customPaletteCount--;
+            }
+        }
         std::vector<Vec3b> palette;
-        switch (ui->quality->value()) {
-            case 0: palette = defaultPalette; break;
-            case 1: palette = reducePalette_medianCut(input, 16); break;
-            case 3: palette = reducePalette_octree(input, 16); break;
-            case 2: palette = reducePalette_kMeans(input, 16); break;
+        if (customPaletteMask == 0xFFFF) {
+            palette = std::vector<Vec3b>(customPalette, customPalette + 16);
+        } else {
+            switch (ui->quality->value()) {
+                case 0: palette = defaultPalette; break;
+                case 1: palette = reducePalette_medianCut(input, 16); break;
+                case 3: palette = reducePalette_octree(input, customPaletteCount); break;
+                case 2: palette = reducePalette_kMeans(input, customPaletteCount); break;
+            }
+        }
+        if (customPaletteMask && customPaletteCount) {
+            std::vector<Vec3b> newPalette(16);
+            for (int i = 0; i < 16; i++) {
+                if (customPaletteMask & (1 << i)) newPalette[i] = (ui->lab->isChecked() && ui->quality->value()) ? convertColorToLab(customPalette[i]) : customPalette[i];
+                else if (palette.size() == 16) newPalette[i] = palette[i];
+                else {newPalette[i] = palette.back(); palette.pop_back();}
+            }
+            palette = newPalette;
         }
         Mat reduced;
         switch (ui->dither->value()) {
