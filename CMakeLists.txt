@@ -17,7 +17,7 @@ find_package(OpenSSL REQUIRED)
 find_package(OpenCL)
 find_package(Poco CONFIG REQUIRED COMPONENTS Foundation XML JSON Util Net NetSSL)
 find_package(PkgConfig)
-if(PkgConfig_FOUND)
+if(PkgConfig_FOUND AND NOT WIN32)
     pkg_check_modules(AVCODEC libavcodec)
     if(NOT AVCODEC_FOUND)
         find_path(AVCODEC_INCLUDE_DIRS libavcodec/avcodec.h REQUIRED)
@@ -86,6 +86,7 @@ set(PROJECT_SOURCES
         advanceddialog.h advanceddialog.cpp advanceddialog.ui
         palettechooser.h palettechooser.cpp palettechooser.ui
         resource.qrc
+        icon.rc resource.h
         sanjuuni/src/cc-pixel.cpp sanjuuni/src/cc-pixel-cl.cpp sanjuuni/src/generator.cpp sanjuuni/src/octree.cpp sanjuuni/src/quantize.cpp sanjuuni/src/sanjuuni.hpp sanjuuni/src/sanjuuni.cpp
 )
 
@@ -108,7 +109,6 @@ else()
     else()
         add_executable(sanjuuni-ui
             ${PROJECT_SOURCES}
-            palettechooser.h palettechooser.cpp palettechooser.ui
         )
     endif()
 endif()
@@ -133,6 +133,7 @@ if(WIN32)
     string(REGEX MATCH "^[A-Z]+" DRIVE_LETTER ${PROJECT_SOURCE_DIR})
     string(TOLOWER ${DRIVE_LETTER} DRIVE_LETTER_LOWER)
     string(REGEX REPLACE "^([A-Z]+):" "/mnt/${DRIVE_LETTER_LOWER}" BASH_SOURCE_DIR ${PROJECT_SOURCE_DIR})
+    set(app_icon_resource_windows "${CMAKE_CURRENT_SOURCE_DIR}/icon.rc")
 else()
     set(BASH_SOURCE_DIR ${PROJECT_SOURCE_DIR})
 endif()

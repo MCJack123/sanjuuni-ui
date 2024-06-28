@@ -6,6 +6,7 @@
 #include <chrono>
 #include <iomanip>
 #include <sstream>
+#include <filesystem>
 
 #include <QFileDialog>
 #include <QMessageBox>
@@ -242,8 +243,38 @@ void MainWindow::processComplete(int retval, std::exception *e) {
             QMessageBox::critical(this, "Conversion failed", tr("The file failed to convert with an exception: ") + QString(e->what()) + ". Check the console for more information.");
             delete e;
         } else if (retval) QMessageBox::critical(this, "Conversion failed", tr("The file failed to convert with error code ") + QString::number(retval) + ". Check the console for more information.");
-        else QMessageBox::information(this, "Conversion complete", "The file has successfully been converted.");
+        else {
+            std::string path;
+            if (ui->createPlayerFile->isChecked()) {
+                OutputTypeUI tt = (OutputTypeUI)ui->scriptType->currentIndex();
+                switch (tt) {
+                    case OutputTypeUI::BIMG: path = "bimg-player.lua"; break;
+                    case OutputTypeUI::Raw: path = "raw-player.lua"; break;
+                    case OutputTypeUI::Vid32:
+                        if (advanced.compressionType == 1 || advanced.compressionType == 2 || advanced.separateStreams) path = "32vid-player.lua";
+                        else path = "32vid-player-mini.lua";
+                        break;
+                    //case OutputTypeUI::WSClient: case OutputTypeUI::WSServer: path = "websocket-player.lua"; break;
+                    default: break;
+                }
+            }
+            if (!path.empty()) {
+                std::filesystem::path p = path;
+                if (!std::filesystem::exists(p)) {
+                    if (std::filesystem::exists("players" / p)) p = "players" / p;
+                    else {
+                        QMessageBox::information(this, "Conversion complete", "The file has successfully been converted. However, the player file could not be copied.");
+                        goto finish;
+                    }
+                }
+                try {
+                    std::filesystem::copy(p, std::filesystem::path(ui->outputPath->text().toStdString()).parent_path() / path);
+                } catch (...) {}
+            }
+            QMessageBox::information(this, "Conversion complete", "The file has successfully been converted.");
+        }
     }
+finish:
     ui->progressGroup->hide();
     ui->startButton->setText("Start");
 }
@@ -316,7 +347,7 @@ void MainWindow::openInput() {
                     if ((error = avcodec_receive_frame(video_codec_ctx, frame)) == 0) {
                         SwsContext * resize_ctx = sws_getContext(frame->width, frame->height, (AVPixelFormat)frame->format, frame->width, frame->height, AV_PIX_FMT_RGBA, SWS_BICUBIC, NULL, NULL, NULL);
                         QImage image(frame->width, frame->height + 1, QImage::Format::Format_RGBA8888);
-                        int stride[4] = {image.bytesPerLine(), image.bytesPerLine(), image.bytesPerLine(), image.bytesPerLine()};
+                        int stride[4] = {static_cast<int>(image.bytesPerLine()), static_cast<int>(image.bytesPerLine()), static_cast<int>(image.bytesPerLine()), static_cast<int>(image.bytesPerLine())};
                         uint8_t * ptrs[4] = {image.bits(), image.bits() + 1, image.bits() + 2, image.bits() + 3};
                         sws_scale(resize_ctx, frame->data, frame->linesize, 0, frame->height, ptrs, stride);
                         originalImage = QPixmap::fromImage(image.copy(0, 0, frame->width, frame->height));
@@ -360,6 +391,7 @@ void MainWindow::on_scriptType_currentIndexChanged(int index) {
         ui->multiMonitor->setEnabled(false);
         ui->multiMonitor->setChecked(false);
     } else ui->multiMonitor->setEnabled(true);
+    ui->createPlayerFile->setEnabled(tt == OutputTypeUI::BIMG || tt == OutputTypeUI::Raw || tt == OutputTypeUI::Vid32 /*|| tt == OutputTypeUI::WSClient || tt == OutputTypeUI::WSServer*/);
 }
 
 void MainWindow::on_browseButton_clicked() {

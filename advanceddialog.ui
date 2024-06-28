@@ -3,7 +3,7 @@
  <class>AdvancedDialog</class>
  <widget class="QDialog" name="AdvancedDialog">
   <property name="windowModality">
-   <enum>Qt::WindowModality::WindowModal</enum>
+   <enum>Qt::WindowModal</enum>
   </property>
   <property name="geometry">
    <rect>
@@ -76,7 +76,7 @@
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
     <property name="sizeConstraint">
-     <enum>QLayout::SizeConstraint::SetMinimumSize</enum>
+     <enum>QLayout::SetMinimumSize</enum>
     </property>
     <property name="leftMargin">
      <number>10</number>
@@ -96,7 +96,7 @@
        <string>**Advanced Options**</string>
       </property>
       <property name="textFormat">
-       <enum>Qt::TextFormat::MarkdownText</enum>
+       <enum>Qt::MarkdownText</enum>
       </property>
      </widget>
     </item>
@@ -133,6 +133,9 @@
       </item>
       <item>
        <widget class="QCheckBox" name="separateStreams">
+        <property name="toolTip">
+         <string>Outputs 32vid files using separate streams, instead of the new combined format. This option is for legacy purposes only.</string>
+        </property>
         <property name="text">
          <string>Output 32vid files with separate streams (deprecated)</string>
         </property>
@@ -149,6 +152,9 @@
         </item>
         <item>
          <widget class="QComboBox" name="compressionType">
+          <property name="toolTip">
+           <string>Select the type of compression to apply to 32vid files. None and DEFLATE options are not recommended anymore.</string>
+          </property>
           <item>
            <property name="text">
             <string extracomment="Determines the best compression type for the requested format.">Auto</string>
@@ -192,6 +198,9 @@
     </item>
     <item>
      <widget class="QCheckBox" name="trimBorders">
+      <property name="toolTip">
+       <string>Selecting this option will adjust split images to compensate for space lost by monitor borders. This produces a more cohesive image across multiple monitors, but loses the data behind the borders.</string>
+      </property>
       <property name="text">
        <string>Adjust multi-monitor images to fit under monitor borders</string>
       </property>
@@ -253,6 +262,9 @@
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
+          <property name="toolTip">
+           <string>The width of each monitor in the array, in blocks.</string>
+          </property>
           <property name="minimum">
            <number>1</number>
           </property>
@@ -279,6 +291,9 @@
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
+          <property name="toolTip">
+           <string>The height of each monitor in the array, in blocks.</string>
+          </property>
           <property name="minimum">
            <number>1</number>
           </property>
@@ -304,6 +319,9 @@
             <horstretch>1</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
+          </property>
+          <property name="toolTip">
+           <string>The scale of each monitor in the array. This can be between 0.5 and 5.0.</string>
           </property>
           <property name="decimals">
            <number>1</number>
@@ -339,6 +357,9 @@
        <layout class="QHBoxLayout" name="horizontalLayout_3">
         <item>
          <widget class="QCheckBox" name="forcePalette">
+          <property name="toolTip">
+           <string>Whether to use a static palette for some or all colors. Press the Edit button to choose which colors to override.</string>
+          </property>
           <property name="text">
            <string/>
           </property>
@@ -348,6 +369,9 @@
          <widget class="QPushButton" name="paletteEdit">
           <property name="enabled">
            <bool>false</bool>
+          </property>
+          <property name="toolTip">
+           <string>Select what colors are overridden in the palette.</string>
           </property>
           <property name="text">
            <string>Edit...</string>
@@ -361,10 +385,10 @@
     <item>
      <spacer name="verticalSpacer">
       <property name="orientation">
-       <enum>Qt::Orientation::Vertical</enum>
+       <enum>Qt::Vertical</enum>
       </property>
       <property name="sizeType">
-       <enum>QSizePolicy::Policy::Minimum</enum>
+       <enum>QSizePolicy::Minimum</enum>
       </property>
       <property name="sizeHint" stdset="0">
        <size>
@@ -377,10 +401,10 @@
     <item>
      <widget class="QDialogButtonBox" name="buttonBox">
       <property name="orientation">
-       <enum>Qt::Orientation::Horizontal</enum>
+       <enum>Qt::Horizontal</enum>
       </property>
       <property name="standardButtons">
-       <set>QDialogButtonBox::StandardButton::Cancel|QDialogButtonBox::StandardButton::Ok</set>
+       <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
       </property>
      </widget>
     </item>
