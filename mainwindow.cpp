@@ -383,7 +383,7 @@ void MainWindow::on_advancedButton_clicked() {
 
 void MainWindow::on_scriptType_currentIndexChanged(int index) {
     OutputTypeUI tt = (OutputTypeUI)index;
-    ui->browseButton->setEnabled(tt == OutputTypeUI::Lua || tt == OutputTypeUI::BIMG || tt == OutputTypeUI::Raw || tt == OutputTypeUI::Vid32);
+    ui->browseButton->setEnabled(tt == OutputTypeUI::Lua || tt == OutputTypeUI::BIMG || tt == OutputTypeUI::Raw || tt == OutputTypeUI::Vid32 || tt == OutputTypeUI::NFP);
     ui->port->setEnabled(tt == OutputTypeUI::HTTP || tt == OutputTypeUI::WSServer);
     ui->outputPath->setEnabled(tt != OutputTypeUI::HTTP && tt != OutputTypeUI::WSServer);
     ui->startButton->setEnabled(!inputPath.isEmpty() && (!ui->outputPath->text().isEmpty() || ui->scriptType->currentIndex() == (int)OutputTypeUI::HTTP || ui->scriptType->currentIndex() == (int)OutputTypeUI::WSServer));
@@ -412,7 +412,7 @@ void MainWindow::on_startButton_clicked() {
     arguments.push_back("--input");
     arguments.push_back(inputPath.toStdString());
     OutputTypeUI tt = (OutputTypeUI)ui->scriptType->currentIndex();
-    if (tt == OutputTypeUI::Lua || tt == OutputTypeUI::BIMG || tt == OutputTypeUI::Raw || tt == OutputTypeUI::Vid32) {
+    if (tt == OutputTypeUI::Lua || tt == OutputTypeUI::BIMG || tt == OutputTypeUI::Raw || tt == OutputTypeUI::Vid32 || tt == OutputTypeUI::NFP) {
         arguments.push_back("--output");
         arguments.push_back(ui->outputPath->text().toStdString());
         arguments.push_back(typeArgs[ui->scriptType->currentIndex()]);
