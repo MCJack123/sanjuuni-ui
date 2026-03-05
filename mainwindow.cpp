@@ -5,6 +5,7 @@
 
 #include <chrono>
 #include <iomanip>
+#include <fstream>
 #include <sstream>
 #include <filesystem>
 
@@ -45,6 +46,17 @@ static const char * typeExtensions[] = {
     "NFP/paintutils image file (*.nfp)",
     "Raw mode frame (*.ccraw)",
     "32vid video (*.32v)"
+};
+
+static const char * extensions[] = {
+    ".lua",
+    ".bimg",
+    ".nfp",
+    ".rawmode",
+    ".32v",
+    "",
+    "",
+    ""
 };
 
 static std::string typeArgs[] = {
@@ -101,6 +113,9 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWin
     ui->progressGroup->hide();
     setAcceptDrops(true);
     qRegisterMetaType<std::exception*>("std::exception*");
+#ifdef __EMSCRIPTEN__
+    ui->browseButton->setEnabled(false);
+#endif
 }
 
 MainWindow::~MainWindow() {
@@ -258,6 +273,28 @@ void MainWindow::processComplete(int retval, std::exception *e) {
                     default: break;
                 }
             }
+#ifdef __EMSCRIPTEN__
+            if (!path.empty()) {
+                std::filesystem::path p = path;
+                if (!std::filesystem::exists(p)) {
+                    if (std::filesystem::exists("players" / p)) p = "players" / p;
+                    else {
+                        QMessageBox::information(this, "Conversion complete", "The file has successfully been converted. However, the player file could not be copied.");
+                        goto finish;
+                    }
+                }
+                try {
+                    QFile file(std::filesystem::path(ui->outputPath->text().toStdString()).parent_path() / path);
+                    file.open(QIODevice::ReadOnly);
+                    QByteArray data = file.readAll();
+                    QFileDialog::saveFileContent(data, QString(path.c_str()));
+                } catch (...) {}
+            }
+            QFile file(ui->outputPath->text());
+            file.open(QIODevice::ReadOnly);
+            QByteArray data = file.readAll();
+            QFileDialog::saveFileContent(data, ui->outputPath->text());
+#else
             if (!path.empty()) {
                 std::filesystem::path p = path;
                 if (!std::filesystem::exists(p)) {
@@ -272,6 +309,7 @@ void MainWindow::processComplete(int retval, std::exception *e) {
                 } catch (...) {}
             }
             QMessageBox::information(this, "Conversion complete", "The file has successfully been converted.");
+#endif
         }
     }
 finish:
@@ -284,9 +322,22 @@ void MainWindow::showLoadingPreview(bool show) {
     else ui->loadingPreview->hide();
 }
 
+void MainWindow::openInputFromContent(const QString &fileName, const QByteArray &data) {
+    std::ofstream out(fileName.toStdString());
+    out.write(data.data(), data.size());
+    out.close();
+    inputPath = fileName;
+    ui->outputPath->setText(fileName + extensions[ui->scriptType->currentIndex()]);
+    openInput();
+}
+
 void MainWindow::on_openInputButton_clicked() {
+#ifdef __EMSCRIPTEN__
+    QFileDialog::getOpenFileContent(tr("Images (*.png *.jpg *.jpeg *.gif *.bmp *.webp *.heic);;Videos (*.mp4 *.m4v *.mov *.avi *.webm *.mkv *.flv);;All files (*)"), std::bind(&MainWindow::openInputFromContent, this, std::placeholders::_1, std::placeholders::_2));
+#else
     inputPath = QFileDialog::getOpenFileName(this, tr("Select Input File"), "", tr("Images (*.png *.jpg *.jpeg *.gif *.bmp *.webp *.heic);;Videos (*.mp4 *.m4v *.mov *.avi *.webm *.mkv *.flv);;All files (*)"));
     openInput();
+#endif
 }
 
 void MainWindow::openInput() {
@@ -383,6 +434,17 @@ void MainWindow::on_advancedButton_clicked() {
 
 void MainWindow::on_scriptType_currentIndexChanged(int index) {
     OutputTypeUI tt = (OutputTypeUI)index;
+#ifdef __EMSCRIPTEN__
+    ui->browseButton->setEnabled(false);
+    ui->port->setEnabled(tt == OutputTypeUI::HTTP || tt == OutputTypeUI::WSServer);
+    ui->outputPath->setEnabled(true);
+    ui->startButton->setEnabled(!inputPath.isEmpty() && !ui->outputPath->text().isEmpty() && !(ui->scriptType->currentIndex() == (int)OutputTypeUI::HTTP || ui->scriptType->currentIndex() == (int)OutputTypeUI::WSServer || ui->scriptType->currentIndex() == (int)OutputTypeUI::WSClient));
+    if (tt != OutputTypeUI::Lua && tt != OutputTypeUI::BIMG && tt != OutputTypeUI::Vid32) {
+        ui->multiMonitor->setEnabled(false);
+        ui->multiMonitor->setChecked(false);
+    } else ui->multiMonitor->setEnabled(true);
+    ui->createPlayerFile->setEnabled(tt == OutputTypeUI::BIMG || tt == OutputTypeUI::Raw || tt == OutputTypeUI::Vid32 /*|| tt == OutputTypeUI::WSClient || tt == OutputTypeUI::WSServer*/);
+#else
     ui->browseButton->setEnabled(tt == OutputTypeUI::Lua || tt == OutputTypeUI::BIMG || tt == OutputTypeUI::Raw || tt == OutputTypeUI::Vid32 || tt == OutputTypeUI::NFP);
     ui->port->setEnabled(tt == OutputTypeUI::HTTP || tt == OutputTypeUI::WSServer);
     ui->outputPath->setEnabled(tt != OutputTypeUI::HTTP && tt != OutputTypeUI::WSServer);
@@ -392,6 +454,7 @@ void MainWindow::on_scriptType_currentIndexChanged(int index) {
         ui->multiMonitor->setChecked(false);
     } else ui->multiMonitor->setEnabled(true);
     ui->createPlayerFile->setEnabled(tt == OutputTypeUI::BIMG || tt == OutputTypeUI::Raw || tt == OutputTypeUI::Vid32 /*|| tt == OutputTypeUI::WSClient || tt == OutputTypeUI::WSServer*/);
+#endif
 }
 
 void MainWindow::on_browseButton_clicked() {

@@ -56,5 +56,6 @@ private:
     void regeneratePreview_thread();
     void regeneratePreview();
     void openInput();
+    void openInputFromContent(const QString &fileName, const QByteArray &data); // for emscripten
 };
 #endif // MAINWINDOW_H
